@@ -14,3 +14,8 @@ cst-studio-suite-link
 # Model Center Platform CLI
 # Model Center Platform 命令行工具
 mcp[cli]>=1.25.0
+
+# Additional dependencies
+# 额外依赖项
+requests>=2.31.0
+chromadb>=1.5.0

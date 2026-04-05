@@ -8,3 +8,28 @@ wheels/
 
 # Virtual environments
 .venv
+
+# CST project files (large binary + result directories)
+*.cst
+*_*/
+*.mat
+
+# CST source/reference/test directories
+cst_source/
+ref_model/
+test/
+test_skill_real/
+
+# Temporary and preview files
+tmp/
+plot_previews/
+
+# IDE/tool caches
+.trae/
+.workbuddy/
+
+# Prototype optimizer data (large workspace files)
+prototype_optimizer/data/
+
+# Materials library (reference data, not code)
+Materials/

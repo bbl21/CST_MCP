@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "snapshot": false,
+  "mcp": {
+    "cst-modeler": {
+      "type": "local",
+      "command": ["uv", "run", "advanced_mcp.py"],
+      "enabled": true
+    },
+    "cst-results": {
+      "type": "local",
+      "command": ["uv", "run", "cst_results_mcp.py"],
+      "enabled": true
+    }
+  }
+}
