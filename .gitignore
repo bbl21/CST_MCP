@@ -20,6 +20,9 @@ ref_model/
 test/
 test_skill_real/
 
+# Task run directories (simulation data, large)
+tasks/
+
 # Temporary and preview files
 tmp/
 plot_previews/
