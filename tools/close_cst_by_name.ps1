@@ -3,11 +3,22 @@ param(
     [switch]$Force
 )
 
+$CstForceKillAllowlist = @(
+    'cstd',
+    'CST DESIGN ENVIRONMENT_AMD64',
+    'CSTDCMainController_AMD64',
+    'CSTDCSolverServer_AMD64'
+)
+
+function Stop-AllowlistedCstProcesses {
+    param([string[]]$Names)
+    foreach ($name in $Names) {
+        Stop-Process -Name $name -Force -ErrorAction SilentlyContinue
+    }
+}
+
 if ($Force -or -not $ProjectName) {
-    Stop-Process -Name 'CST DESIGN ENVIRONMENT_AMD64' -Force -ErrorAction SilentlyContinue
-    Stop-Process -Name cstd -Force -ErrorAction SilentlyContinue
-    Stop-Process -Name 'CSTDCMainController_AMD64' -Force -ErrorAction SilentlyContinue
-    Stop-Process -Name 'CSTDCSolverServer_AMD64' -Force -ErrorAction SilentlyContinue
+    Stop-AllowlistedCstProcesses -Names $CstForceKillAllowlist
     Write-Output "closed all"
 } else {
     Get-Process 'CST DESIGN ENVIRONMENT_AMD64' -ErrorAction SilentlyContinue |
@@ -15,9 +26,11 @@ if ($Force -or -not $ProjectName) {
         Stop-Process -Force -ErrorAction SilentlyContinue
     $remainingDesign = @(Get-Process 'CST DESIGN ENVIRONMENT_AMD64' -ErrorAction SilentlyContinue)
     if ($remainingDesign.Count -eq 0) {
-        Stop-Process -Name cstd -Force -ErrorAction SilentlyContinue
-        Stop-Process -Name 'CSTDCMainController_AMD64' -Force -ErrorAction SilentlyContinue
-        Stop-Process -Name 'CSTDCSolverServer_AMD64' -Force -ErrorAction SilentlyContinue
+        Stop-AllowlistedCstProcesses -Names @(
+            'cstd',
+            'CSTDCMainController_AMD64',
+            'CSTDCSolverServer_AMD64'
+        )
     }
     Write-Output "closed: $ProjectName"
 }

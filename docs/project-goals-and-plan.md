@@ -186,9 +186,11 @@
 - CLI 原子工具 POC 已归档为历史验证；`tools/cst_cli.py` 等旧旁路脚本已迁入 `archive/tools-legacy-20260421/`，不再作为默认调用入口
 - 阶段 D 的 CLI-first 架构门控已完成：`cst_runtime/` 是共享 runtime 能力层，`python -m cst_runtime` 是 CLI 主调用界面，MCP 先保留为稳定生产链和兼容 adapter，见 `docs/cli-architecture-decision.md`
 - 第一版 `cst_runtime/` 已落地并补齐跨 agent 基础兼容性：`doctor`、`usage-guide`、结构化 JSON 错误、显式参数优先于 stdin、`--args-stdin` 显式读管道、`python -m cst_runtime` fallback 和 `args-template`
-- results/S11 与远场解析、预览能力已迁入 runtime；远场 fresh-session 真实 CST 导出/读取仍为 `needs_validation`，不能宣称生产验证完成
+- results/S11 与远场解析、预览能力已迁入 runtime；Trae 低上下文 ref_0 S11 CLI-only 验证已完成，见 `docs/2026-04-23-trae-ref0-cli-low-context-validation.md`
+- Trae 使用反馈已分流，见 `docs/2026-04-23-trae-cli-feedback-triage.md`；当前只把 CST 连接诊断、锁检测、Access denied 清理证据和故障排除视为 P0 门控相关，其余参数一致性、文档示例、流程自动化、可视化、性能等进入 P0 后加固或 P1/P2
+- 远场 fresh-session 真实 CST 导出/读取已通过 `ref_0` 10 GHz 实机验证，记录见 `docs/2026-04-23-ref0-fresh-session-farfield-validation.md`
 - `prototype_optimizer` 已判定不应继续作为主线保留；其 UI 源码最多作为旧展示原型归档，`prototype_optimizer/data/` 不再作为项目事实来源
-- 阶段 D 尚未 `validated`：还缺 Trae/其他 coding agent 低上下文端到端验证，以及 fresh-session 真实 CST 远场验证；今日门控结论是暂不进入 `P1`
+- 阶段 D 已整体 `validated`：Trae/其他 coding agent 低上下文端到端验证已完成，fresh-session 真实 CST 远场验证也已完成；当前门控结论是 P0 已通过，但不自动启动 `P1`
 
 ## 5.1 本周基础目标
 

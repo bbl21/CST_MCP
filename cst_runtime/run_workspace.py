@@ -95,7 +95,10 @@ def render_initial_summary(
 
 
 def copy_project_artifacts(source_project: Path, working_project: Path) -> Path:
-    source_companion = source_project.with_suffix("")
+    if source_project.suffix.lower() == ".prj":
+        source_companion = source_project.parent
+    else:
+        source_companion = source_project.with_suffix("")
     if not source_companion.exists() or not source_companion.is_dir():
         raise FileNotFoundError(f"source companion directory not found: {source_companion}")
 
@@ -165,8 +168,29 @@ def prepare_new_run(
             )
 
         source_project_path = Path(resolved_source_project).expanduser().resolve()
-        if source_project_path.suffix.lower() != ".cst":
-            source_project_path = source_project_path.with_suffix(".cst")
+        if source_project_path.is_dir():
+            prj_files = [f for f in source_project_path.iterdir() if f.suffix.lower() == ".prj"]
+            if prj_files:
+                source_project_path = prj_files[0]
+            else:
+                return error_response(
+                    "source_project_missing",
+                    f"source_project 目录中没有找到 .prj 文件: {source_project_path.as_posix()}",
+                    source_project=source_project_path.as_posix(),
+                )
+        elif source_project_path.suffix.lower() != ".cst" and source_project_path.suffix.lower() != ".prj":
+            cst_path = source_project_path.with_suffix(".cst")
+            prj_path = source_project_path.with_suffix(".prj")
+            if cst_path.exists() and cst_path.is_file():
+                source_project_path = cst_path
+            elif prj_path.exists() and prj_path.is_file():
+                source_project_path = prj_path
+            else:
+                return error_response(
+                    "source_project_missing",
+                    f"source_project 不存在: {source_project_path.as_posix()}",
+                    source_project=source_project_path.as_posix(),
+                )
         if not source_project_path.exists() or not source_project_path.is_file():
             return error_response(
                 "source_project_missing",

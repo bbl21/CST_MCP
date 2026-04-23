@@ -47,7 +47,7 @@ tasks/
 ## 关键源码位置
 - `mcp/advanced_mcp.py`：建模与仿真执行相关 MCP
 - `mcp/cst_results_mcp.py`：结果读取、导出和可视化相关 MCP
-- `cst_runtime/`：共享 runtime；CLI 入口为 `python -m cst_runtime`，当前已包含 `run_workspace.py`、`project_identity.py`、`audit.py`、`modeler.py`、`results.py`、`farfield.py`
+- `cst_runtime/`：共享 runtime；CLI 入口为 `python -m cst_runtime`，当前已包含 `run_workspace.py`、`project_identity.py`、`audit.py`、`modeler.py`、`results.py`、`farfield.py`、`process_cleanup.py`
 - `skills/cst-simulation-optimization/SKILL.md`：正式流程 Skill
 - `skills/cst-runtime-cli-optimization/SKILL.md`：CLI/runtime 并行迁移流程 Skill；不替代当前 MCP 稳定链
 - `tasks/task_xxx_slug/task.json`：当前正式任务入口的任务上下文
@@ -65,7 +65,7 @@ tasks/
 - 第一版 runtime CLI 入口：`python -m cst_runtime list-tools`；复杂入参优先用 `python -m cst_runtime args-template --tool <tool>` 生成模板
 
 ## 常用脚本
-- `tools/kill_cst.ps1`：强制结束 CST 进程
+- `tools/kill_cst.ps1`：按 CST 强杀白名单结束 CST 进程
 - `tools/close_cst_by_name.ps1`：按项目名关闭 CST 窗口
 - `tools/cleanup_cst.ps1`：清理现场
 - `tools/call_mcp_tool.py`：MCP 协议验收与排障 client

@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from cst_runtime import audit, farfield, modeler, project_identity, results, run_workspace
+from cst_runtime import audit, farfield, modeler, process_cleanup, project_identity, results, run_workspace
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -94,6 +94,7 @@ def _usage_guide() -> dict[str, Any]:
             "run": ["prepare-run", "get-run-context"],
             "audit": ["record-stage", "update-status"],
             "project_identity": ["infer-run-dir", "wait-project-unlocked", "verify-project-identity", "list-open-projects"],
+            "process_cleanup": ["cleanup-cst-processes"],
             "modeler": ["open-project", "list-parameters", "change-parameter", "start-simulation-async", "is-simulation-running", "save-project", "close-project"],
             "results": ["open-results-project", "list-run-ids", "get-parameter-combination", "get-1d-result", "get-2d-result", "generate-s11-comparison", "plot-exported-file"],
             "farfield": ["export-farfield-fresh-session", "read-realized-gain-grid-fresh-session", "inspect-farfield-ascii", "plot-farfield-multi"],
@@ -103,6 +104,7 @@ def _usage_guide() -> dict[str, Any]:
             "Do not edit ref/ source projects; operate on a run working copy.",
             "Do not treat Abs(E) as dBi; use Realized Gain/Gain/Directivity for gain evidence.",
             "Do not continue a pipeline after status == 'error' unless the recovery step is explicit.",
+            "Only force-kill CST process names in the cleanup allowlist; record Access is denied residuals instead of claiming they were killed.",
         ],
     }
 
@@ -373,6 +375,14 @@ def tool_record_stage(args: dict[str, Any]) -> dict[str, Any]:
 
 def tool_update_status(args: dict[str, Any]) -> dict[str, Any]:
     return audit.update_run_status(**args)
+
+
+def tool_cleanup_cst_processes(args: dict[str, Any]) -> dict[str, Any]:
+    return process_cleanup.cleanup_cst_processes(
+        project_path=str(args.get("project_path") or ""),
+        dry_run=bool(args.get("dry_run", False)),
+        settle_seconds=float(args.get("settle_seconds", 0.5)),
+    )
 
 
 def tool_open_project(args: dict[str, Any]) -> dict[str, Any]:
@@ -660,6 +670,11 @@ ARGS_TEMPLATES: dict[str, dict[str, Any]] = {
         "error_json": "",
         "extra_json": "{}",
     },
+    "cleanup-cst-processes": {
+        "project_path": "C:\\path\\to\\tasks\\task_xxx\\runs\\run_001\\projects\\working.cst",
+        "dry_run": False,
+        "settle_seconds": 0.5,
+    },
     "open-project": {
         "project_path": "C:\\path\\to\\tasks\\task_xxx\\runs\\run_001\\projects\\working.cst",
     },
@@ -837,6 +852,12 @@ TOOLS: dict[str, dict[str, Any]] = {
         "risk": "filesystem-write",
         "description": "Update the formal run status.json file.",
         "function": tool_update_status,
+    },
+    "cleanup-cst-processes": {
+        "category": "process_cleanup",
+        "risk": "process-control",
+        "description": "Force-kill only allowlisted CST processes and report Access is denied residuals with lock-file evidence.",
+        "function": tool_cleanup_cst_processes,
     },
     "open-project": {
         "category": "modeler",

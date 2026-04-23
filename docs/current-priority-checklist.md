@@ -13,7 +13,7 @@
 
 **阶段 D 低上下文验证前，必须先完成轻量 CLI-first 架构门控。CLI 不作为第二条生产链，而应作为同一 `cst_runtime/` 能力层的主要调用界面；MCP 先保留为稳定生产链和兼容 adapter；`prototype_optimizer` 已退出默认主线和迁移包。架构决策见 [`cli-architecture-decision.md`](./cli-architecture-decision.md)。**
 
-当前执行策略更新：MCP 工具链先保留为稳定生产链；CLI/runtime 以独立 Skill 并行推进。本地 CLI 兼容性自检已经完成，但第三方 agent 端到端低上下文验证和 fresh-session 远场实测仍未完成，P0 暂不标记为 `validated`。
+当前执行策略更新：MCP 工具链先保留为稳定生产链；CLI/runtime 以独立 Skill 并行推进。本地 CLI 兼容性自检已经完成，Trae 低上下文端到端验证已通过，记录见 [`2026-04-23-trae-ref0-cli-low-context-validation.md`](./2026-04-23-trae-ref0-cli-low-context-validation.md)。fresh-session 真实 CST 远场导出/读取验证也已完成，记录见 [`2026-04-23-ref0-fresh-session-farfield-validation.md`](./2026-04-23-ref0-fresh-session-farfield-validation.md)。P0 当前标记为 `validated`。
 
 这件事优先于：
 
@@ -62,7 +62,7 @@
 - [x] 完成 CLI-first 架构门控：明确 `cst_runtime/`、CLI adapter、MCP 兼容 adapter 的职责边界
 - [x] 明确第一批 CLI 化落点只聚焦 run 管理与项目身份校验，不扩展成第二条生产链
 - [x] 明确 `prototype_optimizer` 归档边界，默认主线和迁移包不再依赖它
-- [ ] 在 Trae/其他 coding agent 低上下文条件下跑通一次完整流程
+- [x] 在 Trae/其他 coding agent 低上下文条件下跑通一次完整流程：`task_009_ref0_cli_low_context_validation/run_001` 已 `validated`
 - [x] 验证第一版 runtime 的标准 `run_xxx/{projects,exports,logs,stages,analysis}` 产物完整落盘
 - [x] 验证第一版 runtime 的错误分支、状态文件和审计落盘可用
 - [x] 验证优化闭环 runtime 工具可用：参数读写、项目身份校验、关闭解锁、results run_id/参数组合/1D 导出、S11 对比
@@ -70,12 +70,14 @@
 - [x] 新增 CLI/runtime 并行 Skill，避免把现有 MCP Skill 混成双入口流程
 - [x] 增加 CLI `args-template`，降低低上下文/PowerShell 手写 JSON 调用风险
 - [x] 验证 CLI 跨 agent 基础兼容性：`doctor`、`usage-guide`、JSON 错误出口、stdin/显式参数合并规则、`python -m cst_runtime` fallback
-- [x] 迁移 results/farfield runtime 能力：S11/远场解析与 HTML 预览可用；fresh-session 真实 CST 远场导出仍标记 `needs_validation`
+- [x] 迁移 results/farfield runtime 能力：S11/远场解析与 HTML 预览可用；fresh-session 真实 CST 远场导出/读取已通过 `ref_0` 10 GHz 实机验证
 - [x] 清理 `tools/` 旧旁路脚本并归档到 `archive/tools-legacy-20260421/`
 - [x] 输出残留问题清单：阻塞项、非阻塞项、观察项
-- [x] 给出是否允许进入进阶目标的门控结论：当前不进入 `P1`
+- [x] 给出是否允许进入进阶目标的门控结论：P0 已通过，但不自动启动 `P1`
 
-明天第一任务：在 Trae/其他 coding agent 环境用最小上下文执行 `cst_runtime doctor`、`usage-guide`、工具发现和一次完整低上下文流程；并补做 fresh-session 真实 CST 远场导出/读取验证。完成前不进入 `P1`。
+Trae 使用反馈已分流到 [`2026-04-23-trae-cli-feedback-triage.md`](./2026-04-23-trae-cli-feedback-triage.md)。其中与 P0 门控直接相关的是 CST 连接诊断、锁文件检测、`Access is denied` 清理证据和故障排除；参数一致性、严格校验、端到端示例属于 P0 后加固；结果可视化、批量比较、性能和并行处理进入 P1/P2 观察项。
+
+下一任务：先做门控复盘，确认是进入 `P1` 优化指导原型，还是先处理 Trae 反馈中的 P0 后加固项；在用户确认前不自动启动新主线。
 
 ## 基础目标映射
 
@@ -110,7 +112,7 @@
 - [x] 阶段 D 前置：CLI-first 架构门控完成，确认不会形成第二条生产链
 - [x] 阶段 D 前置：MCP 先保留为稳定生产链和兼容 adapter，后续新能力优先进入 `cst_runtime/` 与 CLI
 - [x] 阶段 D 前置：`prototype_optimizer` 已明确归档/保留边界，不再作为主线依赖
-- [ ] 在 Trae/其他 coding agent 低上下文条件下跑通一次完整流程
+- [x] 在 Trae/其他 coding agent 低上下文条件下跑通一次完整流程：`task_009_ref0_cli_low_context_validation/run_001` 已 `validated`
 - [x] 验证第一版 runtime 标准 `run_xxx/{projects,exports,logs,stages,analysis}` 产物完整落盘
 - [x] 验证第一版 runtime 错误分支、状态文件和审计落盘可用
 - [x] 验证优化闭环 runtime 工具可用，不依赖旧 `mcp/*.py` 源文件加载
@@ -124,8 +126,9 @@
 - [x] 阶段 A 完成后再进入阶段 B
 - [x] 阶段 B 完成后再进入阶段 C
 - [x] 阶段 C 完成后先完成 CLI 架构门控，再进入阶段 D
-- [ ] 阶段 D 低上下文端到端验证完成后，再把 P0 标记为 `validated`
-- [x] 今日收尾门控结论已给出：暂不进入 `P1`
+- [x] 阶段 D 低上下文端到端验证已完成：Trae 已跑通 ref_0 S11 CLI-only 闭环
+- [x] fresh-session 真实 CST 远场导出/读取验证完成，P0 已标记为 `validated`
+- [x] 今日收尾门控结论已更新：P0 已通过，但不自动启动 `P1`
 
 ## 进阶目标
 
@@ -133,8 +136,8 @@
 
 进入条件：
 
-- [ ] P0 全部完成
-- [ ] 正式生产链已不依赖临时脚本、旁路流程、特定 agent 或隐式上下文
+- [x] P0 全部完成
+- [x] 正式生产链已不依赖临时脚本、旁路流程、特定 agent 或隐式上下文
 
 原型目标：
 

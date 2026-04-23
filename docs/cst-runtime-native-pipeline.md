@@ -109,7 +109,8 @@ final_args = stdin_json + explicit_args
 远场迁移状态：
 
 - 解析和 HTML 预览已用既有 `Abs(Realized Gain)[dBi]` 与 `Abs(E)[V/m]` 文件验证；`Abs(E)` 只按场强单位展示，不标记为 dBi。
-- 真正启动 CST 的 fresh-session 远场导出/读取已经接入 CLI 和错误分支，但还需要在无残留锁、可启动 CST 的正式 run 上做实机验收后，才能宣布替代 results-MCP 生产链。
+- 真正启动 CST 的 fresh-session 远场导出/读取已在 `ref_0` 10 GHz 正式 run 上通过实机验收：`export-farfield-fresh-session` 导出 `Abs(Realized Gain)[dBi]` TXT，`read-realized-gain-grid-fresh-session` 读取 `Realized Gain` dBi JSON，记录见 [`2026-04-23-ref0-fresh-session-farfield-validation.md`](./2026-04-23-ref0-fresh-session-farfield-validation.md)。
+- 这关闭了当前 P0 门控，但不取消 MCP 作为稳定生产链和兼容 adapter；新模型、新指标或用户要求 GUI 可见 MCP tool call 时，仍按对应任务重新判断验证入口。
 
 仍不迁移的能力：
 

@@ -173,9 +173,9 @@ python -m cst_runtime doctor
 - project_identity：`infer-run-dir`、`wait-project-unlocked`、`verify-project-identity`
 - modeler：`open-project`、`list-parameters`、`change-parameter`、`start-simulation-async`、`is-simulation-running`、`save-project`、`close-project`
 - results：`list-run-ids`、`get-parameter-combination`、`get-1d-result`、`generate-s11-comparison`、`plot-exported-file`
-- farfield 试迁移：`export-farfield-fresh-session`、`read-realized-gain-grid-fresh-session`、`inspect-farfield-ascii`、`plot-farfield-multi`
+- farfield：`export-farfield-fresh-session`、`read-realized-gain-grid-fresh-session`、`inspect-farfield-ascii`、`plot-farfield-multi`
 
-远场增益证据必须走 `Realized Gain` / `Gain` / `Directivity`；`Abs(E)` 只能作为场强，不得标记为 dBi。
+远场增益证据必须走 `Realized Gain` / `Gain` / `Directivity`；`Abs(E)` 只能作为场强，不得标记为 dBi。`ref_0` 10 GHz fresh-session 导出/读取已通过实机验证，见 [`2026-04-23-ref0-fresh-session-farfield-validation.md`](./2026-04-23-ref0-fresh-session-farfield-validation.md)；新模型或新指标仍要按任务留痕验证。
 
 ## 最小安全自检
 
