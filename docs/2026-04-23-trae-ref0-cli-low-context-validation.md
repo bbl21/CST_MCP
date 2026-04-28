@@ -1,4 +1,4 @@
-# 2026-04-23 Trae ref_0 CLI 低上下文验证记录
+﻿# 2026-04-23 Trae ref_0 CLI 低上下文验证记录
 
 > 本文记录 Trae 仅凭 Skill 和 `cst_runtime` CLI 完成 ref_0 S11 工作流验证的结果。  
 > 规则仍以 `AGENTS.md` 为准；CLI/runtime 执行流程以 `skills/cst-runtime-cli-optimization/SKILL.md` 为准。
@@ -10,8 +10,8 @@
 - 验证 run：`run_001`
 - run 状态：`validated`
 - 完成时间：`2026-04-23T16:24:00+08:00`
-- 参考模型只读路径：`C:/Users/z1376/Documents/CST_MCP/ref/ref_model/ref_0/ref_0.cst`
-- 工作副本：`C:/Users/z1376/Documents/CST_MCP/tasks/task_009_ref0_cli_low_context_validation/runs/run_001/projects/working.cst`
+- 参考模型只读路径：`<repo>/ref/ref_model/ref_0/ref_0.cst`
+- 工作副本：`<repo>/tasks/task_009_ref0_cli_low_context_validation/runs/run_001/projects/working.cst`
 
 ## 验证内容
 

@@ -40,11 +40,34 @@ tasks/task_xxx_slug/
 
 项目依赖 `uv`、Python 3.13+、CST Studio Suite 2026。
 
+首次使用前，必须先把 CST Studio Suite 自带的 Python 本地库安装到当前环境，否则无法导入 `cst.interface` / `cst.results`：
+
+```powershell
+pip install --editable "<CST_STUDIO_SUITE_FOLDER_BIN64>/python_cst_libraries"
+```
+
+例如默认安装位置通常类似：
+
+```powershell
+pip install --editable "C:\Program Files\CST Studio Suite 2026\AMD64\python_cst_libraries"
+```
+
+安装后用 `doctor` 检查 CST Python 库是否可导入。
+
+低上下文 agent 使用本项目时，先读 Skill，再用 CLI 自学习工具和管道：
+
+1. 阅读 [`skills/cst-runtime-cli-optimization/SKILL.md`](skills/cst-runtime-cli-optimization/SKILL.md)。
+2. 在仓库根目录运行 CLI 发现命令。
+3. 对每个不熟悉的工具先执行 `describe-tool` 和 `args-template`。
+4. 对每条不熟悉的链路先执行 `describe-pipeline` 和 `pipeline-template`。
+5. 每次调用后解析 stdout JSON，只有 `status == "success"` 才进入下一步。
+
 ```powershell
 uv run python -m cst_runtime doctor
 uv run python -m cst_runtime usage-guide
 uv run python -m cst_runtime list-tools
 uv run python -m cst_runtime list-pipelines
+uv run python -m cst_runtime describe-pipeline --pipeline self-learn-cli
 ```
 
 查看单个工具：
@@ -54,6 +77,8 @@ uv run python -m cst_runtime describe-tool --tool change-parameter
 uv run python -m cst_runtime args-template --tool change-parameter --output .\tmp\change_parameter_args.json
 uv run python -m cst_runtime change-parameter --args-file .\tmp\change_parameter_args.json
 ```
+
+`args-template` + `--args-file` 是首选调用方式，尤其适合 Windows 路径、复杂参数和跨 agent 交接。直接 flags 只用于已经确认支持的常用字段。
 
 常用字段也支持直接参数：
 
@@ -88,6 +113,12 @@ uv run python -m cst_runtime pipeline-template --pipeline latest-s11-preview --o
 - S11 dB 需要按 `20*log10(sqrt(real^2 + imag^2))` 计算。
 - 远场绝对增益只能使用 `Realized Gain` / `Gain` / `Directivity`；`Abs(E)` 不能标记为 dBi。
 
+## 展示案例
+
+- 近轴方向图平坦度优化：[`docs/showcase-flatness-optimization.md`](docs/showcase-flatness-optimization.md)
+
+该案例展示了系统如何从 baseline 出发，通过目标函数重定义、单参数探针、负例排除和局部细化，把多频点近轴 flatness 的 worst-case 从 `18.423 dB` 优化到 `14.107 dB`。案例只保留脱敏后的指标和决策链，不包含 CST 原始工程或大结果文件。
+
 ## 关键文档
 
 - 项目目标与阶段计划：[`docs/project-goals-and-plan.md`](docs/project-goals-and-plan.md)
@@ -106,4 +137,3 @@ uv run python -m cst_runtime pipeline-template --pipeline latest-s11-preview --o
 - MCP 仍保留为稳定生产链和兼容 adapter。
 - 不把自然语言直接生成 3D 模型作为当前阶段目标。
 - 进入 P1 优化指导原型前，应继续保持底座稳定、可审计、可迁移。
-

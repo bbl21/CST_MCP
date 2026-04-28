@@ -1,7 +1,7 @@
-param(
+﻿param(
     [string]$SkillName = "",
-    [string]$SourceDir = "C:\Users\z1376\Documents\CST_MCP\skills",
-    [string]$TargetDir = "C:\Users\z1376\.config\opencode\skills"
+    [string]$SourceDir = "<repo>\skills",
+    [string]$TargetDir = "<user-home>\.config\opencode\skills"
 )
 
 $ErrorActionPreference = "Stop"

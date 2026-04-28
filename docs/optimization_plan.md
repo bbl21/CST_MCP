@@ -1,4 +1,4 @@
-# CST Antenna Optimizer Skill 优化计划
+﻿# CST Antenna Optimizer Skill 优化计划
 
 **日期**: 2026-04-06  
 **状态**: 待执行
@@ -44,7 +44,7 @@
 
 ## Step 1: 修复 SKILL.md 工具名（文档修正）
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\SKILL.md`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\SKILL.md`
 
 | 当前文档 | 修正为 | 说明 |
 |----------|--------|------|
@@ -57,7 +57,7 @@
 
 ## Step 2: 修复 `sim_ok` 逻辑（轮询仿真状态）
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
 
 **问题位置**: `_run_single_sample_real` 函数，`start_simulation()` 后立即设置 `sim_ok=True`
 
@@ -77,7 +77,7 @@
 
 ## Step 3: `dry_run` 默认值改为 `False`
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
 
 **问题位置**: `SessionConfig` dataclass，L55
 
@@ -89,7 +89,7 @@
 
 ## Step 4: 移除未使用字段 `s11_run_id`
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
 
 **问题位置**: `SessionConfig` dataclass，`s11_run_id: int = 1` 定义但从未被使用
 
@@ -101,7 +101,7 @@
 
 ## Step 5: `close(save=False)` 显式调用
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\scripts\optimizer_loop.py`
 
 **问题位置**: `_run_single_sample_real` 末尾，远场导出后未显式 `close(save=False)`
 
@@ -113,7 +113,7 @@
 
 ## Step 6: 强化 SKILL.md 中的参数调优经验
 
-**目标文件**: `C:\Users\z1376\.config\opencode\skills\cst-antenna-optimizer\SKILL.md`
+**目标文件**: `<user-home>\.config\opencode\skills\cst-antenna-optimizer\SKILL.md`
 
 **新增内容**:
 - 四脊喇叭参数敏感度极高，大幅调整会导致模型失效

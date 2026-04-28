@@ -1,17 +1,17 @@
-# MEMORY
+﻿# MEMORY
 
 ## 用途
 - 本文件只记录经验证的长期事实、稳定共识和已确认决策
 - 本文件不是任务日志，不记录一次性排障过程和临时操作步骤
 
 ## 稳定事实
-- 当前主蓝本是 `C:/Users/z1376/Documents/CST_MCP/ref/ref_model/ref_0/`
+- 当前主蓝本是 `<repo>/ref/ref_model/ref_0/`
 - `ref_0` 是四脊喇叭天线蓝本，S 参数频段为 2-18 GHz，远场关注点为 10 GHz
 - 当前正式维护的执行 Skill 是 `skills/cst-simulation-optimization/SKILL.md`
 - 项目内 Codex 生效副本位于 `.codex/cst-simulation-optimization/SKILL.md`
 - 当前稳定生产链仍以 MCP + Skill 为基准；`cst_runtime/` 是正在验证的共享 runtime/CLI 能力层，不是第二条正式生产链
-- 当前重点能力目录是 `C:/Users/z1376/Documents/CST_MCP/cst_runtime/`；`prototype_optimizer/` 不再作为主线和默认迁移包依赖
-- 标准任务目录根路径是 `C:/Users/z1376/Documents/CST_MCP/tasks/task_xxx_slug/runs/run_xxx/`
+- 当前重点能力目录是 `<repo>/cst_runtime/`；`prototype_optimizer/` 不再作为主线和默认迁移包依赖
+- 标准任务目录根路径是 `<repo>/tasks/task_xxx_slug/runs/run_xxx/`
 
 ## 知识治理共识
 - `AGENTS.md` 负责规则、红线、修改前置条件和知识分流标准

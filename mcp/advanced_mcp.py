@@ -1887,8 +1887,8 @@ def _define_material(material_name: str):
         return {"status": "error", "message": "当前没有活动的项目"}
     project = project_data["project"]
 
-    material_library_path = r"c:/Users/z1376/Documents/CST_MCP/.trae/skills/cst-overview/reference/Materials"
-    file_path = material_library_path + "/" + f"{material_name}.mtd"
+    material_library_path = Path(__file__).resolve().parent.parent / "Materials"
+    file_path = str(material_library_path / f"{material_name}.mtd")
 
     mtd_content = read_mtd_file(file_path)
     if not mtd_content:

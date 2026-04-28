@@ -1,11 +1,11 @@
-# Trae ref_0 CLI 低上下文验证提示词
+﻿# Trae ref_0 CLI 低上下文验证提示词
 
 > 本文是一段可直接复制给 Trae 的提示词，用于验证“仅靠 Skill 和 `cst_runtime` CLI 工具完成 ref_0 的标准 S11 优化闭环”。  
 > 规则仍以 `AGENTS.md` 为准；执行流程以 `skills/cst-runtime-cli-optimization/SKILL.md` 为准。
 
 ```text
 你现在在 Windows 项目目录：
-C:\Users\z1376\Documents\CST_MCP
+<repo>
 
 目标：
 只依靠仓库内 Skill 和 `uv run python -m cst_runtime ...` CLI 工具，完成一次 ref_0 的低上下文端到端流程验证。不要调用 MCP tool，不要使用 `archive/` 里的旧脚本，不要写一次性 Python 脚本绕过 CLI，不要修改 `ref/` 下参考工程。
@@ -16,10 +16,10 @@ C:\Users\z1376\Documents\CST_MCP
 3. skills/cst-runtime-cli-optimization/SKILL.md
 
 本次任务规范：
-- 新任务目录：C:\Users\z1376\Documents\CST_MCP\tasks\task_009_ref0_cli_low_context_validation
+- 新任务目录：<repo>\tasks\task_009_ref0_cli_low_context_validation
 - task_id：task_009_ref0_cli_low_context_validation
 - 任务标题：Validate ref_0 S11 workflow through cst_runtime CLI only
-- 参考模型只读路径：C:\Users\z1376\Documents\CST_MCP\ref\ref_model\ref_0\ref_0.cst
+- 参考模型只读路径：<repo>\ref\ref_model\ref_0\ref_0.cst
 - 优化目标：验证 ref_0 在 9-11 GHz 范围内的 S11 CLI 闭环；可做一次小参数扰动，不追求最终最优。
 - 可调参数规范：优先使用 `g` 和 `thr`；默认参考值 `g=25`、`thr=12.5`；若参数存在，可把 `g` 改为 `24.5` 做一次最小验证，`thr` 保持不变。若参数不存在，停止并把状态记为 `blocked`，不要猜其它参数。
 
@@ -28,7 +28,7 @@ C:\Users\z1376\Documents\CST_MCP
   "task_id": "task_009_ref0_cli_low_context_validation",
   "title": "Validate ref_0 S11 workflow through cst_runtime CLI only",
   "goal": "Run one low-context cst_runtime CLI-only validation loop for ref_0 S11 near 10 GHz.",
-  "source_project": "C:/Users/z1376/Documents/CST_MCP/ref/ref_model/ref_0/ref_0.cst",
+  "source_project": "<repo>/ref/ref_model/ref_0/ref_0.cst",
   "created_at": "2026-04-23T00:00:00+08:00",
   "owner": "trae",
   "status": "active",

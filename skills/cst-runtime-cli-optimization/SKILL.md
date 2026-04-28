@@ -1,4 +1,4 @@
----
+﻿---
 name: cst-runtime-cli-optimization
 description: 当用户明确要求使用 CLI/runtime 执行 CST 参数优化、验证低上下文 CLI 流程、或在保留 MCP 主链的同时试运行 `cst_runtime` 优化/结果/远场闭环时，调用此 Skill。它适用于 `python -m cst_runtime` 的 run 创建、参数读写、仿真、results 读取、S11 JSON/HTML、fresh-session farfield ASCII/HTML/Realized Gain 导出读取和审计落盘；不用于几何建模或替代尚未退场的 MCP 稳定链。
 ---
@@ -69,7 +69,7 @@ S11 JSON 结构固定为外层元数据加数据数组：`xdata` 是频率序列
 当把任务交给 Trae 或其他 agent 时，提示词可以很短，但必须包含以下契约。agent 不需要项目记忆；如未读 `AGENTS.md`，也必须只按本 Skill 的流程和 CLI 返回执行。
 
 ```text
-你在 Windows 项目目录 C:\Users\z1376\Documents\CST_MCP。
+你在 Windows 项目目录 <repo>。
 只依靠本 Skill 和 `uv run python -m cst_runtime ...` CLI 完成任务。
 不要调用 MCP tool，不要使用 archive/ 里的旧脚本，不要写一次性 Python 脚本绕过 CLI，不要修改 ref/ 下参考工程。
 
@@ -93,7 +93,7 @@ uv run python -m cst_runtime describe-pipeline --pipeline self-learn-cli
 ```text
 任务目录：tasks/task_009_ref0_cli_low_context_validation
 task_id：task_009_ref0_cli_low_context_validation
-参考模型只读路径：C:\Users\z1376\Documents\CST_MCP\ref\ref_model\ref_0\ref_0.cst
+参考模型只读路径：<repo>\ref\ref_model\ref_0\ref_0.cst
 目标：只验证 ref_0 的 S11 CLI 闭环，可做一次最小参数扰动，不追求最优。
 参数：优先确认 `g` 与 `thr`；若存在，可把 `g` 从 25 改为 24.5，`thr` 不变；若参数不存在，标记 blocked，不猜其它参数。
 验收：run 为 validated，S11 JSON/HTML/status.json/tool_calls.jsonl 均落盘，工程关闭且无 .lok。
@@ -313,7 +313,7 @@ tasks/task_010_ref0_fresh_session_farfield_validation
   "task_id": "task_010_ref0_fresh_session_farfield_validation",
   "title": "Validate ref_0 10 GHz farfield through cst_runtime fresh session",
   "goal": "Run a fresh-session CST farfield export/read validation using cst_runtime.",
-  "source_project": "C:/Users/z1376/Documents/CST_MCP/ref/ref_model/ref_0/ref_0.cst",
+  "source_project": "<repo>/ref/ref_model/ref_0/ref_0.cst",
   "status": "active",
   "target_metric": "Realized Gain dBi farfield grid"
 }
@@ -343,7 +343,7 @@ uv run python -m cst_runtime describe-tool --tool plot-farfield-multi
 ### 1. 创建 run
 
 ```powershell
-$task = "C:\Users\z1376\Documents\CST_MCP\tasks\task_010_ref0_fresh_session_farfield_validation"
+$task = "<repo>\tasks\task_010_ref0_fresh_session_farfield_validation"
 $prepareArgs = "$task\prepare_run_args.json"
 @{ task_path = $task } | ConvertTo-Json -Depth 8 |
   Set-Content -LiteralPath $prepareArgs -Encoding UTF8

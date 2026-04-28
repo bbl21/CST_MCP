@@ -1,4 +1,4 @@
-# 2026-04-23 ref_0 fresh-session 远场验证记录
+﻿# 2026-04-23 ref_0 fresh-session 远场验证记录
 
 > 本文记录 `ref_0` 在 10 GHz 远场结果上的 `cst_runtime` fresh-session 实机验证。  
 > 参考工程仍只读；验证产物落在独立 run 工作副本中。
@@ -9,8 +9,8 @@
 - 验证 run：`run_001`
 - run 状态：`validated`
 - 完成时间：`2026-04-23T17:34:54+08:00`
-- 参考模型：`C:/Users/z1376/Documents/CST_MCP/ref/ref_model/ref_0/ref_0.cst`
-- 工作副本：`C:/Users/z1376/Documents/CST_MCP/tasks/task_010_ref0_fresh_session_farfield_validation/runs/run_001/projects/working.cst`
+- 参考模型：`<repo>/ref/ref_model/ref_0/ref_0.cst`
+- 工作副本：`<repo>/tasks/task_010_ref0_fresh_session_farfield_validation/runs/run_001/projects/working.cst`
 
 本次关闭了 P0 剩余门控：fresh-session 真实 CST 远场导出与 Realized Gain dBi 读取均已成功。
 

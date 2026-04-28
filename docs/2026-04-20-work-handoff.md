@@ -1,4 +1,4 @@
-# 2026-04-20 工作收尾与明日计划
+﻿# 2026-04-20 工作收尾与明日计划
 
 > 本文档用于当天收尾、知识回收和次日启动。它不是规则源；规则与红线以 `AGENTS.md` 为准，阶段目标以 `docs/project-goals-and-plan.md` 和 `docs/current-priority-checklist.md` 为准。
 
@@ -17,7 +17,7 @@
 - `AGENTS.md`
 - `skills/cst-simulation-optimization/SKILL.md`
 - `.codex/cst-simulation-optimization/SKILL.md`
-- `C:/Users/z1376/.codex/skills/cst-simulation-optimization/SKILL.md`
+- `<user-home>/.codex/skills/cst-simulation-optimization/SKILL.md`
 - `docs/formal-entry-and-bypass-audit.md`
 - `docs/phase-c-system-integration-and-portable-mode.md`
 
@@ -37,7 +37,7 @@
 - `docs/phase-c-system-integration-and-portable-mode.md`
 - `skills/cst-simulation-optimization/SKILL.md`
 - `.codex/cst-simulation-optimization/SKILL.md`
-- `C:/Users/z1376/.codex/skills/cst-simulation-optimization/SKILL.md`
+- `<user-home>/.codex/skills/cst-simulation-optimization/SKILL.md`
 
 ### 3. CST CLI 原子工具 POC
 

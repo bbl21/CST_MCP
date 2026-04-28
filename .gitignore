@@ -15,6 +15,21 @@ wheels/
 !cst_runtime/
 !cst_runtime/*.py
 *.mat
+$run/
+backup/
+output/
+*.log
+*.db
+*.sqlite
+*.msqlite
+*.lok
+*.ffm
+*.fme
+*.m2h
+*.slm
+*.fmp
+*.fmm
+*.fmmx
 
 # CST source/reference/test directories
 cst_source/
@@ -28,6 +43,11 @@ tasks/
 # Temporary and preview files
 tmp/
 plot_previews/
+*_args.json
+calculate_s11.py
+startup_prototype_optimizer.ps1
+opencode.json
+.codex/*.bak
 
 # IDE/tool caches
 .trae/
@@ -35,6 +55,7 @@ plot_previews/
 
 # Prototype optimizer data (large workspace files)
 prototype_optimizer/data/
+archive/tools-legacy-*/
 
 # Materials library (reference data, not code)
 Materials/

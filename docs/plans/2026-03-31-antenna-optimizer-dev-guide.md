@@ -1,4 +1,4 @@
-# 天线自动调优原型开发指导
+﻿# 天线自动调优原型开发指导
 
 > 目标：基于现有 CST MCP 能力，快速搭建一个“CST 外置化”的天线性能自动调优原型，用于验证产品想法，而不是一开始就做重型正式系统。
 
@@ -152,7 +152,7 @@ CST 只负责两件事：
 建议在仓库下新建：
 
 ```text
-C:/Users/z1376/Documents/CST_MCP/prototype_optimizer/
+<repo>/prototype_optimizer/
 ├─ app.py
 ├─ requirements.txt
 ├─ config/
