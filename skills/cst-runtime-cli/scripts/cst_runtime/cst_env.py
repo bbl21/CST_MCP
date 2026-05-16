@@ -117,6 +117,7 @@ def _write_pyproject_cst_path(cst_path: str) -> dict[str, Any]:
     toml_path = cst_path.replace("\\", "\\\\")
     entry = f'cst-studio-suite-link = {{ path = "{toml_path}", editable = true }}'
 
+    # 1. 更新 [tool.uv.sources] 中的路径
     entry_start = "cst-studio-suite-link = {"
     idx = original.find(entry_start)
     if idx >= 0:
@@ -141,6 +142,16 @@ def _write_pyproject_cst_path(cst_path: str) -> dict[str, Any]:
 
     if new_content == original:
         return error_response("pyproject_update_failed", "Failed to modify pyproject.toml; check file format")
+
+    # 2. 确保 cst-studio-suite-link 在 [project.dependencies] 中
+    dep_name = "cst-studio-suite-link"
+    deps_start = "dependencies = ["
+    ds = new_content.find(deps_start)
+    if ds >= 0:
+        # 找到与 deps_start 的 [ 配对的 ]
+        de = new_content.find("]", ds)
+        if de >= 0 and dep_name not in new_content[ds:de]:
+            new_content = new_content[:de] + f', "{dep_name}"' + new_content[de:]
 
     pyproject.write_text(new_content, encoding="utf-8")
     return {"status": "success", "cst_path": cst_path, "updated_file": str(pyproject)}
