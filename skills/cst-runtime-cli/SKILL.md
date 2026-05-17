@@ -38,6 +38,8 @@ python <skill-root>\scripts\cst_runtime_cli.py list-pipelines
 
 如果 `health-check` 返回 `overall=blocked`，agent 必须停止并向用户展示 `user_instructions`。
 
+**auto-fix 完成后，所有后续命令必须使用 `uv run` 模式**（`uv run python -m cst_runtime ...`），不可再走系统 Python，否则可能出现库冲突等不可预期结果。
+
 ## Skill 包结构
 
 - `SKILL.md`：触发条件、调用原则、风险判断、验收格式。
@@ -78,7 +80,8 @@ python <skill-root>\scripts\cst_runtime_cli.py list-pipelines
 
 ```text
 你在 Windows 项目目录 <repo>。
-只依靠本 Skill 和 python <skill-root>\scripts\cst_runtime_cli.py ... CLI 完成任务。
+只依靠本 Skill 和 CLI 完成任务。首次初始化用 python <skill-root>\scripts\cst_runtime_cli.py；
+auto-fix 完成后所有后续命令切换为 uv run python -m cst_runtime。
 不要调用 MCP tool，不要使用 archive/ 里的旧脚本，不要写一次性 Python 脚本绕过 CLI，不要修改 ref/ 下参考工程。
 
 首次使用先运行：
@@ -90,6 +93,8 @@ python <skill-root>\scripts\cst_runtime_cli.py usage-guide
 python <skill-root>\scripts\cst_runtime_cli.py list-tools
 python <skill-root>\scripts\cst_runtime_cli.py list-pipelines
 python <skill-root>\scripts\cst_runtime_cli.py describe-pipeline --pipeline self-learn-cli
+
+auto-fix 完成后所有后续命令使用 uv run python -m cst_runtime ...，不可再走系统 Python。
 
 每个不熟悉的工具先运行 describe-tool 和 args-template。
 每条不熟悉的管道先运行 describe-pipeline 和 pipeline-template。
