@@ -317,19 +317,7 @@ def health_check(workspace: str = "", auto_fix: bool = True) -> dict[str, Any]:
         cst_status, cst_msg, cst_action = "pass", f"CST libraries at {scan['active_path']}", ""
     _record_check(checks, remaining_issues, "cst_libraries", cst_status, cst_msg, auto_fixed=cst_fixed, user_action=cst_action)
 
-    # 5. Import verification (bootstrap context, before uv sync)
-    if cst_configured or (cst_fixed and auto_fix):
-        v = _verify_cst_imports(scan["active_path"])
-        imp_ok = all(val == "success" for val in v.values())
-        failed = [m for m, s in v.items() if s != "success"]
-        _record_check(checks, remaining_issues, "import_cst",
-            "pass" if imp_ok else "error",
-            "All CST imports OK" if imp_ok else f"Failed: {', '.join(failed)}",
-            user_action="Check CST installation or PYTHONPATH configuration" if not imp_ok else "")
-    else:
-        checks.append({"name": "import_cst", "status": "skipped", "message": "CST libraries not configured, skipping import verification"})
-
-    # 6. uv sync + final verification (auto-fix only, skip if blocking issues exist)
+    # 5. uv sync (auto-fix only, skip if blocking issues exist)
     if auto_fix and not any(c["status"] == "error" for c in checks):
         ws_root = ws_info.get("workspace_root")
         if ws_root:

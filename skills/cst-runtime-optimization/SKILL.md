@@ -124,7 +124,7 @@ python <base-skill-root>\scripts\cst_runtime_cli.py start-simulation-async --arg
 轮询示例：
 
 ```powershell
-for ($i = 1; $i -le 80; $i++) {
+for ($poll = 1; $poll -le 80; $poll++) {
   $raw = python <base-skill-root>\scripts\cst_runtime_cli.py is-simulation-running --args-file "$task\project_args.json"
   $json = ($raw -join "`n") | ConvertFrom-Json
   if ($json.status -ne "success") { throw ($raw -join "`n") }

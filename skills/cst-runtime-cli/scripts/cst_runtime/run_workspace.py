@@ -94,20 +94,22 @@ def render_initial_summary(
     return "\n".join(lines) + "\n"
 
 
-def copy_project_artifacts(source_project: Path, working_project: Path) -> Path:
+def copy_project_artifacts(source_project: Path, working_project: Path) -> Path | None:
     if source_project.suffix.lower() == ".prj":
         source_companion = source_project.parent
     else:
         source_companion = source_project.with_suffix("")
+
+    working_project.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_project, working_project)
+
     if not source_companion.exists() or not source_companion.is_dir():
-        raise FileNotFoundError(f"source companion directory not found: {source_companion}")
+        return None
 
     lock_files = list(source_companion.rglob("*.lok"))
     if lock_files:
         raise RuntimeError("source project appears to be locked; close the CST project before copying")
 
-    working_project.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source_project, working_project)
     working_companion = working_project.with_suffix("")
     shutil.copytree(
         source_companion,
@@ -252,7 +254,7 @@ def prepare_new_run(
             "created_at": created_at,
             "source_project": source_project_path.as_posix(),
             "working_project": working_project.resolve().as_posix(),
-            "working_project_dir": working_companion.resolve().as_posix(),
+            "working_project_dir": (working_companion.resolve().as_posix() if working_companion else working_project.with_suffix("").resolve().as_posix()),
         }
 
         config_path = run_dir / "config.json"
@@ -298,7 +300,7 @@ def prepare_new_run(
             "run_id": run_id,
             "run_dir": run_dir.resolve().as_posix(),
             "working_project": working_project.resolve().as_posix(),
-            "working_project_dir": working_companion.resolve().as_posix(),
+            "working_project_dir": (working_companion.resolve().as_posix() if working_companion else working_project.with_suffix("").resolve().as_posix()),
             "config_path": config_path.resolve().as_posix(),
             "status_path": status_path.resolve().as_posix(),
             "summary_path": summary_path.resolve().as_posix(),
