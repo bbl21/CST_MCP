@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 from typing import Any
 
 
@@ -174,32 +174,29 @@ PIPELINES: dict[str, dict[str, Any]] = {
         "when_to_use": "After get-1d-result has produced JSON files in the run exports directory.",
         "required_context": ["S11 JSON export_path or file_paths", "output_html optional"],
         "commands": [
-            "<get-1d-result JSON output> | uv run python -m cst_runtime generate-s11-comparison",
-            "<json-producing-command> | uv run python -m cst_runtime generate-s11-comparison --args-stdin --args-file <stages>\\s11_comparison_args.json",
+            "uv run python -m cst_runtime generate-report --data-dir <run_dir> --modules s11",
         ],
         "steps": [
             {"tool": "get-1d-result", "purpose": "Produce JSON inputs; CSV is not allowed."},
-            {"tool": "generate-s11-comparison", "purpose": "Render JSON inputs to HTML."},
+            {"tool": "generate-report", "purpose": "Render S11 comparison via --modules s11."},
         ],
         "stop_rules": [
             "Only feed .json inputs produced by get-1d-result.",
-            "If multiple files are needed, use --args-file with file_paths and --args-stdin only for explicit merge.",
         ],
     },
     "s11-farfield-dashboard": {
         "category": "results",
         "risk": "filesystem-write",
-        "description": "Generate a combined S11 curve and farfield heatmap dashboard from exported files.",
-        "when_to_use": "After S11 JSON and farfield TXT/JSON files are already exported into the run exports directory.",
+        "description": "Generate a combined S11 curve and farfield 3D dashboard from exported files.",
+        "when_to_use": "After S11 JSON and farfield JSON files are already exported into the run exports directory.",
         "required_context": ["s11_json_files", "farfield_files", "exports_dir"],
         "commands": [
-            "uv run python -m cst_runtime args-template --tool generate-s11-farfield-dashboard --output <stages>\\s11_farfield_dashboard_args.json",
-            "uv run python -m cst_runtime generate-s11-farfield-dashboard --args-file <stages>\\s11_farfield_dashboard_args.json",
+            "uv run python -m cst_runtime generate-report --data-dir <run_dir> --modules s11,farfield3d",
         ],
         "steps": [
             {"tool": "get-1d-result", "purpose": "Produce S11 JSON inputs."},
-            {"tool": "export-farfield-fresh-session", "purpose": "Produce Realized Gain/Gain/Directivity farfield TXT when needed."},
-            {"tool": "generate-s11-farfield-dashboard", "purpose": "Render combined HTML dashboard from exported files."},
+            {"tool": "export-farfield-grid", "purpose": "Produce Realized Gain/Gain/Directivity farfield JSON when needed."},
+            {"tool": "generate-report", "purpose": "Render combined HTML dashboard from exported files (--modules s11,farfield3d)."},
         ],
         "stop_rules": [
             "Do not feed CSV into the dashboard.",
@@ -210,20 +207,16 @@ PIPELINES: dict[str, dict[str, Any]] = {
     "farfield-realized-gain-preview": {
         "category": "farfield",
         "risk": "long-running",
-        "description": "Fresh-session Realized Gain TXT export, grid inspection, and HTML preview.",
+        "description": "Export Realized Gain JSON grid, inspect, and render HTML preview.",
         "when_to_use": "At the end of a results workflow when true gain/dBi farfield evidence is required.",
-        "required_context": ["working_project", "farfield_name", "exports_dir", "analysis_dir"],
+        "required_context": ["working_project", "farfield_name", "exports_dir"],
         "commands": [
-            "uv run python -m cst_runtime export-farfield-fresh-session --args-file <stages>\\export_farfield_args.json",
-            "uv run python -m cst_runtime inspect-farfield-ascii --args-file <stages>\\inspect_farfield_args.json",
-            "uv run python -m cst_runtime plot-farfield-multi --args-file <stages>\\plot_farfield_args.json",
-            "uv run python -m cst_runtime read-realized-gain-grid-fresh-session --args-file <stages>\\read_gain_grid_args.json",
+            "uv run python -m cst_runtime export-farfield-grid --args-file <stages>\\export_farfield_grid_args.json",
+            "uv run python -m cst_runtime generate-report --args-file <stages>\\report_args.json",
         ],
         "steps": [
-            {"tool": "export-farfield-fresh-session", "purpose": "Export Realized Gain/Gain/Directivity TXT through a fresh CST session."},
-            {"tool": "inspect-farfield-ascii", "purpose": "Verify row_count and theta/phi counts before trusting the file."},
-            {"tool": "plot-farfield-multi", "purpose": "Render farfield TXT/JSON to HTML."},
-            {"tool": "read-realized-gain-grid-fresh-session", "purpose": "Read true Realized Gain dBi grid through FarfieldCalculator."},
+            {"tool": "export-farfield-grid", "purpose": "Export Realized Gain/Gain/Directivity JSON grid through FarfieldCalculator."},
+            {"tool": "generate-report", "purpose": "Render farfield JSON to HTML via --modules farfield3d."},
         ],
         "stop_rules": [
             "Never use Abs(E) as dBi gain evidence.",

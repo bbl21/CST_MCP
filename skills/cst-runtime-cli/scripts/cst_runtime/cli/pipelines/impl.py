@@ -7,13 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from .errors import error_response
-
-
-# ── Shared helpers ──
-
-def _safe_log_db(value: float) -> float:
-    return 20.0 * math.log10(max(abs(value), 1e-15))
+from ...core.errors import error_response
+from ...core.utils import safe_log_db as _safe_log_db
 
 
 def _parse_s11_json(file_path: str) -> dict[str, Any] | None:
@@ -52,8 +47,8 @@ def _parse_s11_json(file_path: str) -> dict[str, Any] | None:
 # ── inspect-project ──
 
 def pipeline_inspect_project(project_path: str) -> dict[str, Any]:
-    from .session_manager import open_project as sm_open, close_project as sm_close
-    from .project_ops import list_parameters, list_entities
+    from ...core.session import open_project as sm_open, close_project as sm_close
+    from ...core.project import list_parameters, list_entities
 
     open_result = sm_open(project_path)
     if open_result.get("status") != "success":
@@ -102,8 +97,8 @@ def pipeline_prepare_experiment(
     param_name: str,
     param_value: float,
 ) -> dict[str, Any]:
-    from .session_manager import open_project as sm_open, close_project as sm_close
-    from .project_ops import change_parameter, list_parameters, save_project
+    from ...core.session import open_project as sm_open, close_project as sm_close
+    from ...core.project import change_parameter, list_parameters, save_project
 
     if not param_name:
         return error_response(
@@ -172,9 +167,9 @@ def pipeline_run_experiment(
     timeout_seconds: int = 3600,
     poll_interval_seconds: float = 10.0,
 ) -> dict[str, Any]:
-    from .session_manager import open_project as sm_open, close_project as sm_close
-    from .project_ops import start_simulation_async, is_simulation_running
-    from .results import export_run_results
+    from ...core.session import open_project as sm_open, close_project as sm_close
+    from ...core.project import start_simulation_async, is_simulation_running
+    from ...core.results import export_run_results
 
     open_result = sm_open(project_path)
     if open_result.get("status") != "success":

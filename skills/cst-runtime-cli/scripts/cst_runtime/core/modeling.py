@@ -1,95 +1,12 @@
 from __future__ import annotations
 
 import difflib
-import os
 from pathlib import Path
 from typing import Any
 
 from .errors import error_response
-from .project_identity import attach_expected_project
-
-_DEFINED_MATERIALS: set[str] = set()
-
-
-def _materials_dir() -> Path:
-    return Path(__file__).resolve().parents[2] / "references" / "Materials"
-
-
-def _parse_mtd_commands(mtd_content: str) -> list[str]:
-    commands = []
-    in_definition = False
-    for line in mtd_content.split("\n"):
-        line = line.strip()
-        if line == "[Definition]":
-            in_definition = True
-            continue
-        if line.startswith("[") and line.endswith("]"):
-            break
-        if in_definition and line:
-            commands.append(line)
-    return commands
-
-
-def _generate_material_vba(name: str, commands: list[str]) -> list[str]:
-    vba = ["With Material", "    .Reset", f'    .Name "{name}"', '    .Folder ""']
-    has_create = False
-    for cmd in commands:
-        vba.append(f"    {cmd}")
-        if cmd.strip() == ".Create":
-            has_create = True
-    if not has_create:
-        vba.append("    .Create")
-    vba.append("End With")
-    return vba
-
-
-def _define_material(project_path: str, material_name: str) -> dict[str, Any]:
-    material_name = material_name.strip()
-    if material_name in _DEFINED_MATERIALS:
-        return {"status": "success"}
-    if material_name in ("Vacuum", "PEC"):
-        _DEFINED_MATERIALS.add(material_name)
-        return {"status": "success"}
-    copper_aliases = {"Copper": "Copper (pure)"}
-    if material_name in copper_aliases:
-        material_name = copper_aliases[material_name]
-    mtd_path = _materials_dir() / f"{material_name}.mtd"
-    if not mtd_path.is_file():
-        candidates = sorted(
-            p.stem for p in _materials_dir().glob("*.mtd")
-        )
-        close = difflib.get_close_matches(material_name, candidates, n=5, cutoff=0.4)
-        msg = f"No .mtd file for '{material_name}'"
-        if close:
-            msg += f". Did you mean: {', '.join(close)}?"
-        return error_response(
-            "material_file_not_found",
-            msg,
-            suggestions=close if close else None,
-        )
-    try:
-        mtd_content = mtd_path.read_text(encoding="utf-8")
-    except Exception as exc:
-        return error_response("material_read_failed", str(exc), file=str(mtd_path))
-    commands = _parse_mtd_commands(mtd_content)
-    if not commands:
-        return error_response("material_no_definition", f"No [Definition] in {mtd_path}")
-    vba = _generate_material_vba(material_name, commands)
-    result = _add_vba_history(project_path, f"Define Material: {material_name}", vba)
-    if result.get("status") == "success":
-        _DEFINED_MATERIALS.add(material_name)
-    return result
-
-
-def define_material_from_mtd(project_path: str, material_name: str) -> dict[str, Any]:
-    return _define_material(project_path, material_name)
-
-
-def _abs_project_path(project_path: str) -> str:
-    normalized = os.path.abspath(os.path.expanduser(project_path))
-    if not normalized.lower().endswith(".cst"):
-        normalized += ".cst"
-    return normalized
+from .identity import attach_expected_project
+from .utils import abs_project_path as _abs_project_path
 
 
 def _add_vba_history(project_path: str, history_name: str, vba_lines: list[str]) -> dict[str, Any]:

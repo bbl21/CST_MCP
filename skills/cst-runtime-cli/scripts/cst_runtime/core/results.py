@@ -8,29 +8,27 @@ from pathlib import Path
 from typing import Any
 
 from .errors import error_response
+from .utils import serialize_value
 
-from .render.svg_linechart import (
+from ..render.svg_linechart import (
     _SVG_W, _SVG_H, _SVG_MARGIN, _COLORS,
     _DARK_BG, _DARK_TEXT, _LIGHT_BG, _LIGHT_TEXT,
     _svg_axes, svg_linechart, svg_mini_trend,
     complex_components, safe_log_db, scalar_series,
 )
-from .render.svg_heatmap import svg_heatmap
-from .render.svg_page import svg_page, metric_cards_html
-from .render.canvas_3d import render_3d_farfield
-from .render.dashboard import (
+from ..render.svg_heatmap import svg_heatmap
+from ..render.svg_page import svg_page, metric_cards_html
+from ..render.canvas_3d import render_3d_farfield
+from ..render.dashboard import (
     _TIMELINE_TOOLS, _SECTION_LABELS,
     _parse_cli_filename, _build_timeline,
     _categorize_step, _step_summary, _rationale_from_step,
-    _load_s11_exports, load_s11_series, load_dashboard_farfield_items,
+    _load_s11_exports, load_s11_series,
     _optimization_s11_chart, _s11_table_html,
     _optimization_metrics_html, _param_changes_table_html,
     _step_card_html, _load_exported_payload, _try_parse_cst_farfield_ascii,
     _plot_output_path,
-    plot_exported_file, plot_farfield_multi,
-    generate_s11_comparison, generate_s11_farfield_dashboard,
-    generate_optimization_dashboard, generate_optimization_audit,
-    generate_report,
+    plot_exported_file, generate_report,
 )
 
 # ── Backward-compatible aliases for old private names ──
@@ -43,18 +41,7 @@ _render_3d_farfield = render_3d_farfield
 _complex_components = complex_components
 _safe_log_db = safe_log_db
 _scalar_series = scalar_series
-
-
-def _serialize_value(value: Any) -> Any:
-    if isinstance(value, complex):
-        return {"real": value.real, "imag": value.imag, "complex_str": str(value)}
-    if isinstance(value, dict):
-        return {str(key): _serialize_value(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_serialize_value(item) for item in value]
-    if hasattr(value, "tolist"):
-        return _serialize_value(value.tolist())
-    return value
+_serialize_value = serialize_value
 
 
 def _load_project(project_path: str, allow_interactive: bool = False, subproject_treepath: str = "") -> tuple[Any, dict[str, Any]]:
@@ -526,56 +513,29 @@ def export_run_results(
         # Auto-discover farfield monitors if none provided
         if not farfield_names:
             try:
-                from .farfield import _gui_open_project, _gui_close_project
-                ff_open = _gui_open_project(str(p))
-                if ff_open.get("status") == "success":
-                    proj = ff_open["project"]
-                    discovered = []
-                    for item in proj.model3d.get_tree_items():
-                        tree_path = str(item)
-                        low = tree_path.lower()
-                        if "farfields" in low and "\\farfield" in low and "cut" not in low:
-                            short = tree_path.rsplit("\\", 1)[-1]
-                            if short and short.strip() and short not in discovered:
-                                discovered.append(short)
+                from .farfield import discover_farfield_monitors
+                disc_result = discover_farfield_monitors(str(p))
+                if disc_result.get("status") == "success":
+                    discovered = disc_result.get("farfield_names", [])
                     if discovered:
                         farfield_names = discovered
-                    _gui_close_project(proj, str(p), save=False)
             except Exception:
                 pass
 
         if farfield_names:
-            from .farfield import export_farfield_fresh_session
-            from .session_manager import close_project as sm_close
-
-            try:
-                proj, _ = _load_project(str(p), allow_interactive=True)
-                m3d = proj.get_3d()
-                run_ids = m3d.get_all_run_ids(max_mesh_passes_only=True)
-            except Exception:
-                run_ids = [0]
-
-            latest_run = max(run_ids) if run_ids else 0
+            from .farfield import export_farfield_grid
 
             for ff_name in farfield_names:
-                freq_str = ""
-                try:
-                    freq_str = f"_{_extract_farfield_freq(ff_name)}ghz"
-                except Exception:
-                    pass
-                ff_out = str(exports_dir / f"farfield{freq_str}_run{latest_run}.txt")
-                result = export_farfield_fresh_session(
+                result = export_farfield_grid(
                     project_path=str(p),
                     farfield_name=ff_name,
-                    output_file=ff_out,
-                    plot_mode=farfield_plot_mode,
+                    export_dir=str(exports_dir),
+                    quantity=farfield_plot_mode,
                     theta_step_deg=farfield_theta_step,
                     phi_step_deg=farfield_phi_step,
                 )
                 if result.get("status") == "success":
-                    exported.append(ff_out)
-
-            sm_close(project_path=str(p), save=False)
+                    exported.append(result["output_file"])
 
         try:
             proj2, ctx2 = _load_project(str(p), allow_interactive=True)

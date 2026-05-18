@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import math
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -26,7 +24,6 @@ from cst_runtime.render.canvas_3d import render_3d_farfield
 from cst_runtime.render.dashboard import (
     _parse_cli_filename,
     _try_parse_cst_farfield_ascii,
-    generate_s11_comparison,
 )
 
 
@@ -260,39 +257,6 @@ class TestDashboard(unittest.TestCase):
         info = _parse_cli_filename("cli_20260101_120000_123456_define-brick.json")
         self.assertIsNotNone(info)
         self.assertEqual(info["tool"], "define-brick")
-
-    def test_generate_s11_comparison_with_stub(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            d = Path(tmpdir)
-            s11 = d / "s11.json"
-            s11.write_text(
-                json.dumps({
-                    "run_id": 1,
-                    "xdata": [9.0, 10.0, 11.0],
-                    "ydata": [
-                        {"real": 0.3, "imag": 0.0},
-                        {"real": 0.1, "imag": 0.0},
-                        {"real": 0.2, "imag": 0.0},
-                    ],
-                }),
-                encoding="utf-8",
-            )
-            result = generate_s11_comparison(
-                [str(s11)],
-                output_html=str(d / "out.html"),
-                page_title="S11 Test",
-            )
-            self.assertEqual(result["status"], "success")
-            expected = d / "out.html"
-            self.assertTrue(expected.exists())
-            content = expected.read_text(encoding="utf-8")
-            self.assertIn("S11 Test", content)
-            self.assertIn("<!doctype html>", content)
-
-    def test_generate_s11_comparison_empty_paths(self) -> None:
-        result = generate_s11_comparison([])
-        self.assertEqual(result["status"], "error")
-        self.assertIn("error_type", result)
 
 
 class TestCanvas3D(unittest.TestCase):

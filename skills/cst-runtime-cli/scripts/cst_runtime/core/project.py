@@ -1,19 +1,12 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 
 from .errors import error_response
-from .project_identity import attach_expected_project
-
-
-def _abs_project_path(project_path: str) -> str:
-    normalized = os.path.abspath(os.path.expanduser(project_path))
-    if not normalized.lower().endswith(".cst"):
-        normalized += ".cst"
-    return normalized
+from .identity import attach_expected_project
+from .utils import abs_project_path as _abs_project_path
 
 
 def _connect_new_design_environment():
@@ -222,7 +215,7 @@ def is_simulation_running(project_path: str) -> dict[str, Any]:
             "is_simulation_running_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.project_ops",
+            runtime_module="cst_runtime.core.project",
         )
 
 
@@ -236,14 +229,14 @@ def stop_simulation(project_path: str) -> dict[str, Any]:
         return {
             "status": "success",
             "project_path": normalized_project,
-            "runtime_module": "cst_runtime.project_ops",
+            "runtime_module": "cst_runtime.core.project",
         }
     except Exception as exc:
         return error_response(
             "stop_simulation_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.project_ops",
+            runtime_module="cst_runtime.core.project",
         )
 
 
@@ -258,14 +251,14 @@ def pause_simulation(project_path: str) -> dict[str, Any]:
             "status": "success",
             "project_path": normalized_project,
             "message": "simulation paused",
-            "runtime_module": "cst_runtime.project_ops",
+            "runtime_module": "cst_runtime.core.project",
         }
     except Exception as exc:
         return error_response(
             "pause_simulation_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.project_ops",
+            runtime_module="cst_runtime.core.project",
         )
 
 
@@ -280,14 +273,14 @@ def resume_simulation(project_path: str) -> dict[str, Any]:
             "status": "success",
             "project_path": normalized_project,
             "message": "simulation resumed",
-            "runtime_module": "cst_runtime.project_ops",
+            "runtime_module": "cst_runtime.core.project",
         }
     except Exception as exc:
         return error_response(
             "resume_simulation_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.project_ops",
+            runtime_module="cst_runtime.core.project",
         )
 
 
@@ -329,9 +322,9 @@ def set_solver_acceleration(
     try:
         sCommand = "\n".join(vba)
         project.modeler.add_to_history("Set Solver Acceleration", sCommand)
-        return {"status": "success", "project_path": normalized_project, "runtime_module": "cst_runtime.project_ops"}
+        return {"status": "success", "project_path": normalized_project, "runtime_module": "cst_runtime.core.project"}
     except Exception as exc:
-        return error_response("set_solver_acceleration_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.project_ops")
+        return error_response("set_solver_acceleration_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.core.project")
 
 
 def set_fdsolver_extrude_open_bc(project_path: str, enable: bool = True) -> dict[str, Any]:
@@ -353,9 +346,9 @@ def _single_vba_pops(project_path: str, history_name: str, vba_line: str) -> dic
         return status
     try:
         project.modeler.add_to_history(history_name, vba_line)
-        return {"status": "success", "project_path": normalized_project, "runtime_module": "cst_runtime.project_ops"}
+        return {"status": "success", "project_path": normalized_project, "runtime_module": "cst_runtime.core.project"}
     except Exception as exc:
-        return error_response(f"{history_name}_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.project_ops")
+        return error_response(f"{history_name}_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.core.project")
 
 
 def define_parameters(project_path: str, names: list[str], values: list[str]) -> dict[str, Any]:
@@ -371,6 +364,6 @@ def define_parameters(project_path: str, names: list[str], values: list[str]) ->
         entries = "\n".join(f'names({i+1}) = "{names[i]}"\nvalues({i+1}) = "{values[i]}"' for i in range(dim))
         vba = f"{dim_decl}{entries}\nStoreParameters names, values"
         project.modeler.add_to_history("Define Parameters", vba)
-        return {"status": "success", "project_path": normalized_project, "count": dim, "runtime_module": "cst_runtime.project_ops"}
+        return {"status": "success", "project_path": normalized_project, "count": dim, "runtime_module": "cst_runtime.core.project"}
     except Exception as exc:
-        return error_response("define_parameters_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.project_ops")
+        return error_response("define_parameters_failed", str(exc), project_path=normalized_project, runtime_module="cst_runtime.core.project")

@@ -14,6 +14,25 @@ def _extract_farfield_frequency_ghz(farfield_name: str) -> float | None:
 
 
 def inspect_farfield_ascii_grid(file_path: str) -> dict[str, Any]:
+    path = Path(file_path)
+    if path.suffix.lower() == ".json":
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            theta = data.get("xpositions") or data.get("theta_values_deg", [])
+            phi = data.get("ypositions") or data.get("phi_values_deg", [])
+            grid = data.get("data") or data.get("grid_db", [])
+            row_count = sum(len(row) for row in grid) if isinstance(grid, list) else 0
+            return {
+                "row_count": row_count,
+                "theta_count": len(theta),
+                "phi_count": len(phi),
+                "theta_min": min(theta) if theta else None,
+                "theta_max": max(theta) if theta else None,
+                "phi_min": min(phi) if phi else None,
+                "phi_max": max(phi) if phi else None,
+            }
+        except Exception:
+            pass
     theta_values: set[float] = set()
     phi_values: set[float] = set()
     row_count = 0

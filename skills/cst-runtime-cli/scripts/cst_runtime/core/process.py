@@ -7,9 +7,9 @@ import warnings
 from pathlib import Path
 from typing import Any
 
-from . import project_identity, workspace
+from . import identity as project_identity, workspace
 from .errors import error_response
-from .project_identity import find_lock_files
+from .identity import find_lock_files
 
 def _load_allowlist() -> list[str]:
     """加载CST进程白名单配置，带错误处理和回退"""
@@ -97,7 +97,7 @@ $items | Sort-Object pid -Unique | ConvertTo-Json -Depth 4
     return _loads_json_array(result.stdout)
 
 
-def _stop_process(pid: int, name: str) -> dict[str, Any]:
+def stop_process(pid: int, name: str) -> dict[str, Any]:
     command = f"""
 try {{
   Stop-Process -Id {int(pid)} -Force -ErrorAction Stop
@@ -126,6 +126,48 @@ try {{
 
 
 def _is_access_denied(message: str) -> bool:
+    lowered = message.lower()
+    return "access is denied" in lowered or "拒绝访问" in lowered or "存取被拒" in lowered
+
+
+def cleanup_orphan_processes(settle_seconds: float = 0.5) -> dict[str, Any]:
+    try:
+        all_procs = _discover_cst_processes()
+        de_pids = {
+            p["pid"] for p in all_procs
+            if "DESIGN ENVIRONMENT" in p.get("name", "").upper()
+        }
+        if not de_pids:
+            return {"status": "success", "message": "no DE processes found", "orphan_found": 0, "orphan_killed": 0, "killed": []}
+
+        open_result = project_identity.list_open_projects()
+        active_pids = set()
+        if open_result.get("status") == "success":
+            for proj in open_result.get("open_projects", []):
+                pid = proj.get("design_environment_pid")
+                if pid:
+                    active_pids.add(pid)
+
+        orphan_pids = de_pids - active_pids
+        killed: list[dict[str, Any]] = []
+        for pid in orphan_pids:
+            killed.append(stop_process(pid, "CST DESIGN ENVIRONMENT_AMD64"))
+
+        if killed and settle_seconds > 0:
+            time.sleep(max(0.0, float(settle_seconds)))
+
+        return {
+            "status": "success",
+            "orphan_found": len(orphan_pids),
+            "orphan_killed": len(killed),
+            "killed": [{"pid": k.get("pid"), "status": k.get("status")} for k in killed],
+        }
+    except Exception as exc:
+        return error_response(
+            "cleanup_orphan_failed",
+            f"orphan process cleanup failed: {str(exc)}",
+            runtime_module="cst_runtime.core.process",
+        )
     lowered = message.lower()
     return "access is denied" in lowered or "拒绝访问" in lowered or "存取被拒" in lowered
 
@@ -210,7 +252,7 @@ def inspect_cst_environment(project_path: str = "") -> dict[str, Any]:
                 open_projects=open_projects,
                 identity_status=identity_status,
             ),
-            "runtime_module": "cst_runtime.process_cleanup",
+            "runtime_module": "cst_runtime.core.process",
         }
     except Exception as exc:
         return error_response(
@@ -218,7 +260,7 @@ def inspect_cst_environment(project_path: str = "") -> dict[str, Any]:
             f"inspect_cst_environment failed: {str(exc)}",
             force_kill_allowlist=CST_FORCE_KILL_PROCESS_ALLOWLIST,
             project_path=str(project_path or ""),
-            runtime_module="cst_runtime.process_cleanup",
+            runtime_module="cst_runtime.core.process",
         )
 
 
@@ -234,7 +276,7 @@ def cleanup_cst_processes(
         attempts: list[dict[str, Any]] = []
         if not dry_run:
             for proc in before:
-                attempts.append(_stop_process(int(proc["pid"]), str(proc["name"])))
+                attempts.append(stop_process(int(proc["pid"]), str(proc["name"])))
             time.sleep(max(0.0, float(settle_seconds)))
 
         after = _discover_cst_processes()
@@ -281,7 +323,7 @@ def cleanup_cst_processes(
                 processes_after=after,
                 access_denied=access_denied,
                 other_failures=other_failures,
-                runtime_module="cst_runtime.process_cleanup",
+                runtime_module="cst_runtime.core.process",
             )
 
         return {
@@ -296,7 +338,7 @@ def cleanup_cst_processes(
             "attempts": attempts,
             "processes_after": after,
             "access_denied": access_denied,
-            "runtime_module": "cst_runtime.process_cleanup",
+            "runtime_module": "cst_runtime.core.process",
         }
     except Exception as exc:
         return error_response(
@@ -304,5 +346,5 @@ def cleanup_cst_processes(
             f"cleanup_cst_processes failed: {str(exc)}",
             force_kill_allowlist=CST_FORCE_KILL_PROCESS_ALLOWLIST,
             project_path=str(project_path or ""),
-            runtime_module="cst_runtime.process_cleanup",
+            runtime_module="cst_runtime.core.process",
         )

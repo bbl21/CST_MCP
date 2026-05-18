@@ -13,12 +13,12 @@ SCRIPTS = HERE.parent / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from cst_runtime.farfield_analysis.parser import (
+from cst_runtime.analysis.farfield.parser import (
     _extract_farfield_frequency_ghz,
     _parse_farfield_cut_payload,
     inspect_farfield_ascii_grid,
 )
-from cst_runtime.farfield_analysis.flatness import (
+from cst_runtime.analysis.farfield.flatness import (
     _build_farfield_angle_values,
     calculate_farfield_neighborhood_flatness,
 )

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ..errors import error_response
+from ...core.errors import error_response
 from .parser import _parse_farfield_cut_payload
 
 

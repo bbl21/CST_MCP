@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .errors import error_response
-from .run_workspace import load_json_file, now_iso, resolve_run_dir, write_json_file
+from .workspace import load_json_file, now_iso, resolve_run_dir, write_json_file
 
 
 def parse_json_object_arg(value: Any, field_name: str) -> dict[str, Any]:

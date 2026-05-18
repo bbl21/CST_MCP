@@ -4,6 +4,8 @@ import math
 from html import escape
 from typing import Any
 
+from ..core.utils import safe_log_db
+
 # ── SVG Constants ──
 
 _SVG_W = 960
@@ -135,10 +137,6 @@ def complex_components(value: Any) -> tuple[float, float]:
     if isinstance(value, (int, float)):
         return float(value), 0.0
     return 0.0, 0.0
-
-
-def safe_log_db(value: float) -> float:
-    return 20.0 * math.log10(max(abs(value), 1e-15))
 
 
 def scalar_series(values: list[Any]) -> tuple[list[float], str]:

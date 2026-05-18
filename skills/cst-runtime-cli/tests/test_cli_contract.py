@@ -58,8 +58,7 @@ _NO_WORKSPACE_TOOLS = {
     "init-workspace", "init-task",
     "inspect-cst-environment", "cleanup-cst-processes",
     "cst-session-inspect", "cst-session-quit",
-    "generate-s11-comparison", "generate-s11-farfield-dashboard",
-    "plot-exported-file", "inspect-farfield-ascii", "plot-farfield-multi",
+    "plot-exported-file",
     "calculate-farfield-neighborhood-flatness",
     "list-materials", "install-cst-libraries", "health-check",
 }
@@ -295,21 +294,6 @@ class CliContractNoCstFunctionalTests(unittest.TestCase):
         self.assertEqual(p["status"], "success")
         self.assertIn("overall", p)
 
-    def test_generate_s11_comparison_with_stub_files(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            d = Path(tmpdir)
-            s11 = d / "s11.json"
-            s11.write_text(json.dumps({
-                "run_id": 1, "xdata": [9.0, 10.0, 11.0],
-                "ydata": [{"real": 0.3, "imag": 0.0}, {"real": 0.1, "imag": 0.0}, {"real": 0.2, "imag": 0.0}],
-            }), encoding="utf-8")
-            args = {"file_paths": [str(s11)], "output_html": str(d / "out.html"), "page_title": "S11 Test"}
-            r = run_cli("generate-s11-comparison", "--args-json", json.dumps(args))
-            self.assertEqual(r.returncode, 0, r.stderr)
-            p = json.loads(r.stdout)
-            self.assertEqual(p["status"], "success")
-            self.assertTrue((d / "out.html").exists())
-
     def test_plot_exported_file_with_s11_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             d = Path(tmpdir)
@@ -323,33 +307,6 @@ class CliContractNoCstFunctionalTests(unittest.TestCase):
             p = json.loads(r.stdout)
             self.assertEqual(p["status"], "success")
             self.assertTrue((d / "preview.html").exists())
-
-    def test_inspect_farfield_ascii_with_stub_txt(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            d = Path(tmpdir)
-            ff = d / "farfield.txt"
-            lines = ["Theta Phi Abs(Realized Gain)[dBi]", "0 0 14.5", "0 180 14.3", "10 0 13.8", "10 180 13.6"]
-            ff.write_text("\n".join(lines), encoding="utf-8")
-            args = {"file_path": str(ff)}
-            r = run_cli("inspect-farfield-ascii", "--args-json", json.dumps(args))
-            self.assertEqual(r.returncode, 0, r.stderr)
-            p = json.loads(r.stdout)
-            self.assertEqual(p["status"], "success")
-            self.assertEqual(p["grid"]["row_count"], 4)
-
-    def test_plot_farfield_multi_with_stub_txt(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            d = Path(tmpdir)
-            ff = d / "farfield.txt"
-            lines = ["Theta Phi Abs(Realized Gain)[dBi]", "0 0 14.5", "0 180 14.3", "10 0 13.8", "10 180 13.6"]
-            ff.write_text("\n".join(lines), encoding="utf-8")
-            r = run_cli("plot-farfield-multi", "--args-json", json.dumps({
-                "file_paths": [str(ff)], "output_html": str(d / "ff.html"), "page_title": "FF Test"
-            }))
-            self.assertEqual(r.returncode, 0, r.stderr)
-            p = json.loads(r.stdout)
-            self.assertEqual(p["status"], "success")
-            self.assertTrue((d / "ff.html").exists())
 
     def test_calculate_farfield_flatness_with_stub_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

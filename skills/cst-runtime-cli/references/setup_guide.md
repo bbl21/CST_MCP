@@ -4,17 +4,19 @@
 
 ## 自动流程
 
+在工作目录（测试区或任务目录）执行，不在 skill 目录：
+
 ```powershell
-# 一键全量自检 + 自动修复（含 uv sync + 最终验证）
+# 1. 引导模式：入口脚本从 skill 目录加载模块，在工作目录创建 .venv/
 python <skill-root>\scripts\cst_runtime_cli.py health-check --auto-fix true
 
-# 通过后，所有后续命令使用 uv run 模式
+# 2. 通过后切换到生产模式：使用工作目录下隔离的 .venv
 uv run python -m cst_runtime usage-guide
 uv run python -m cst_runtime list-tools
 uv run python -m cst_runtime list-pipelines
 ```
 
-`health-check --auto-fix true` 自动诊断并修复：
+> `.venv` 只能在其所在目录通过 `uv run` 激活。切换到不同目录后 `uv run` 会自动重建或报错——这是隔离设计，不是 bug。
 - Python 版本（≥3.12）
 - uv 包管理器
 - 工作区初始化（`init-workspace`）
@@ -23,12 +25,22 @@ uv run python -m cst_runtime list-pipelines
 - 虚拟环境安装（`uv sync`）
 - 最终验证（`uv run doctor`）
 
+## 环境隔离说明
+
+`cst_runtime` 是 skill 自带的本地模块（`<skill-root>/scripts/cst_runtime/`），不是 pip 包。
+
+- **禁止**从 skill 目录复制 `cst_runtime/` 到工作区——那会产生过时副本
+- 工作区只需 `pyproject.toml` + `.venv`（由 `health-check --auto-fix` 创建）
+- 所有命令通过 skill 入口运行，模块从 skill 目录加载
+
 ## 入口模式
 
-| 模式 | 命令 | 条件 |
-|---|---|---|
-| 引导 | `python <skill-root>\scripts\cst_runtime_cli.py` | 首次运行，无包依赖 |
-| 生产 | `uv run python -m cst_runtime` | `health-check --auto-fix` 通过后 |
+| 模式 | 命令 | 条件 | 原理 |
+|------|------|------|------|
+| 引导 | `python <skill-root>\scripts\cst_runtime_cli.py` | 首次运行，零配置 | 入口脚本自动将 `scripts/` 加入 `sys.path`，加载 skill 目录内的模块 |
+| 生产 | `uv run python -m cst_runtime` | `health-check --auto-fix` 通过后 | `uv sync` 在工作区创建 `.venv`，模块在该 uv 环境中可解析 |
+
+> 引导模式在任何目录都可运行。生产模式只能在跑过 `health-check` 的目录下用 `uv run`。
 
 ## 上下游工具安装
 

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .errors import error_response
-from .project_ops import list_parameters, list_entities
+from .project import list_parameters, list_entities
 
 
 def _call_internal_tool(tool_name: str, project_path: str) -> dict[str, Any]:

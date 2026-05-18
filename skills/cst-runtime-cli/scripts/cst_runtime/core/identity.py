@@ -57,7 +57,7 @@ def wait_project_unlocked(
                 "project_path": os.path.abspath(project_path),
                 "locked": False,
                 "waited_seconds": round(time.monotonic() - started, 3),
-                "runtime_module": "cst_runtime.project_identity",
+                "runtime_module": "cst_runtime.core.identity",
             }
         if time.monotonic() - started >= timeout_seconds:
             return error_response(
@@ -67,7 +67,7 @@ def wait_project_unlocked(
                 locked=True,
                 lock_files=[path.as_posix() for path in last_locks],
                 timeout_seconds=timeout_seconds,
-                runtime_module="cst_runtime.project_identity",
+                runtime_module="cst_runtime.core.identity",
             )
         time.sleep(poll_interval_seconds)
 
@@ -150,7 +150,7 @@ def list_open_projects() -> dict[str, Any]:
             "no_cst_session",
             errors or "No DEs found to connect to.",
             open_projects=[],
-            runtime_module="cst_runtime.project_identity",
+            runtime_module="cst_runtime.core.identity",
         )
     projects: list[dict[str, Any]] = []
     failures: list[dict[str, Any]] = []
@@ -174,7 +174,7 @@ def list_open_projects() -> dict[str, Any]:
             "Could not list open projects from any CST Design Environment.",
             open_projects=[],
             failures=failures,
-            runtime_module="cst_runtime.project_identity",
+            runtime_module="cst_runtime.core.identity",
         )
     return {
         "status": "success",
@@ -182,7 +182,7 @@ def list_open_projects() -> dict[str, Any]:
         "count": len(projects),
         "design_environment_count": len(environments),
         "failures": failures,
-        "runtime_module": "cst_runtime.project_identity",
+        "runtime_module": "cst_runtime.core.identity",
     }
 
 
@@ -194,7 +194,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
             "no_cst_session",
             errors or "No DEs found to connect to.",
             expected_project_path=os.path.abspath(project_path),
-            runtime_module="cst_runtime.project_identity",
+            runtime_module="cst_runtime.core.identity",
         )
 
     all_open_projects: list[str] = []
@@ -224,7 +224,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
             expected_project_path=os.path.abspath(project_path),
             open_projects=all_open_projects,
             failures=failures,
-            runtime_module="cst_runtime.project_identity",
+            runtime_module="cst_runtime.core.identity",
         )
 
     de, pid, target_project_path, open_projects = target
@@ -245,7 +245,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
                 expected_project_path=os.path.abspath(project_path),
                 open_projects=[str(path) for path in open_projects],
                 design_environment_pid=pid,
-                runtime_module="cst_runtime.project_identity",
+                runtime_module="cst_runtime.core.identity",
             )
 
     try:
@@ -256,7 +256,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
                 expected_project_path=os.path.abspath(project_path),
                 open_projects=[str(path) for path in open_projects],
                 design_environment_pid=pid,
-                runtime_module="cst_runtime.project_identity",
+                runtime_module="cst_runtime.core.identity",
             )
         active = de.active_project
         if callable(active):
@@ -270,7 +270,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
                 active_project_path=active_path,
                 open_projects=[str(path) for path in open_projects],
                 design_environment_pid=pid,
-                runtime_module="cst_runtime.project_identity",
+                runtime_module="cst_runtime.core.identity",
             )
         return active, {
             "status": "success",
@@ -278,7 +278,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
             "open_projects": [str(path) for path in open_projects],
             "design_environment_pid": pid,
             "was_activated": was_activated,
-            "runtime_module": "cst_runtime.project_identity",
+            "runtime_module": "cst_runtime.core.identity",
         }
     except Exception as exc:
         return None, error_response(
@@ -287,7 +287,7 @@ def attach_expected_project(project_path: str) -> tuple[Any | None, dict[str, An
             expected_project_path=os.path.abspath(project_path),
             open_projects=[str(path) for path in open_projects],
             design_environment_pid=pid,
-            runtime_module="cst_runtime.project_identity",
+            runtime_module="cst_runtime.core.identity",
         )
 
 

@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
-from . import process_cleanup, project_identity
+from . import process as process_cleanup
+from . import identity as project_identity
 from .errors import error_response
+from .utils import abs_project_path as _abs_project_path
+
+_OPENED_PROJECTS: dict[str, Any] = {}
 
 
-def _abs_project_path(project_path: str) -> str:
-    normalized = os.path.abspath(os.path.expanduser(project_path))
-    if not normalized.lower().endswith(".cst"):
-        normalized += ".cst"
-    return normalized
+def get_attached_project(project_path: str) -> dict[str, Any] | None:
+    normalized = _abs_project_path(project_path)
+    return _OPENED_PROJECTS.get(normalized)
 
 
 def _connect_new_design_environment():
@@ -31,7 +32,7 @@ def create_blank_project(project_path: str) -> dict[str, Any]:
             "project_already_exists",
             "project_path already exists; choose a different path or delete it first",
             project_path=normalized_project,
-            runtime_module="cst_runtime.session_manager",
+            runtime_module="cst_runtime.core.session",
         )
     project_dir = Path(normalized_project).parent
     project_dir.mkdir(parents=True, exist_ok=True)
@@ -44,14 +45,14 @@ def create_blank_project(project_path: str) -> dict[str, Any]:
             "status": "success",
             "project_path": normalized_project,
             "session_action": "create",
-            "runtime_module": "cst_runtime.session_manager",
+            "runtime_module": "cst_runtime.core.session",
         }
     except Exception as exc:
         return error_response(
             "create_blank_project_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.session_manager",
+            runtime_module="cst_runtime.core.session",
         )
 
 
@@ -62,38 +63,40 @@ def open_project(project_path: str) -> dict[str, Any]:
             "project_file_missing",
             "project_path does not exist",
             project_path=normalized_project,
-            runtime_module="cst_runtime.session_manager",
+            runtime_module="cst_runtime.core.session",
         )
 
-    current, _ = project_identity.attach_expected_project(normalized_project)
-    if current is not None:
+    project, _ = project_identity.attach_expected_project(normalized_project)
+    if project is not None:
+        _OPENED_PROJECTS[normalized_project] = project
         result = {
             "status": "success",
             "project_path": normalized_project,
             "already_open": True,
             "session_action": "open",
             "post_inspect": inspect(project_path),
-            "runtime_module": "cst_runtime.session_manager",
+            "runtime_module": "cst_runtime.core.session",
         }
         return result
 
     try:
         de = _connect_new_design_environment()
-        de.open_project(normalized_project)
+        project = de.open_project(normalized_project)
+        _OPENED_PROJECTS[normalized_project] = project
         return {
             "status": "success",
             "project_path": normalized_project,
             "already_open": False,
             "session_action": "open",
             "post_inspect": inspect(project_path),
-            "runtime_module": "cst_runtime.session_manager",
+            "runtime_module": "cst_runtime.core.session",
         }
     except Exception as exc:
         return error_response(
             "open_project_failed",
             str(exc),
             project_path=normalized_project,
-            runtime_module="cst_runtime.session_manager",
+            runtime_module="cst_runtime.core.session",
         )
 
 
@@ -104,13 +107,13 @@ def reattach_project(project_path: str) -> dict[str, Any]:
             **status,
             "session_action": "reattach",
             "post_inspect": inspect(project_path),
-            "runtime_module": "cst_runtime.session_manager",
+            "runtime_module": "cst_runtime.core.session",
         }
     return {
         **status,
         "session_action": "reattach",
         "post_inspect": inspect(project_path),
-        "runtime_module": "cst_runtime.session_manager",
+        "runtime_module": "cst_runtime.core.session",
     }
 
 
@@ -120,9 +123,12 @@ def close_project(
     wait_unlock: bool = True,
     timeout_seconds: float = 30.0,
     poll_interval_seconds: float = 0.5,
+    kill_processes: bool = True,
 ) -> dict[str, Any]:
     normalized_project = _abs_project_path(project_path)
     project, a_status = project_identity.attach_expected_project(normalized_project)
+    de_pid: int | None = a_status.get("design_environment_pid")
+    _OPENED_PROJECTS.pop(normalized_project, None)
     close_result: dict[str, Any] = a_status if project is None else {"status": "success"}
     if project is not None:
         try:
@@ -139,7 +145,7 @@ def close_project(
                 "close_project_failed",
                 str(exc),
                 project_path=normalized_project,
-                runtime_module="cst_runtime.session_manager",
+                runtime_module="cst_runtime.core.session",
             )
 
     unlock_result: dict[str, Any] | None = None
@@ -149,6 +155,17 @@ def close_project(
             timeout_seconds=timeout_seconds,
             poll_interval_seconds=poll_interval_seconds,
         )
+
+    kill_result: dict[str, Any] | None = None
+    if close_result.get("status") != "error" and kill_processes and de_pid:
+        kill_result = process_cleanup.stop_process(de_pid, "CST DESIGN ENVIRONMENT_AMD64")
+    else:
+        kill_result = None
+
+    orphan_result: dict[str, Any] | None = None
+    if kill_processes:
+        orphan_result = process_cleanup.cleanup_orphan_processes(settle_seconds=0.5)
+
     status = "success"
     if close_result.get("status") == "error" or (unlock_result or {}).get("status") == "error":
         status = "error"
@@ -159,8 +176,10 @@ def close_project(
         "save": save,
         "close_result": close_result,
         "unlock_result": unlock_result,
+        "kill_result": kill_result,
+        "orphan_result": orphan_result,
         "post_inspect": inspect(project_path),
-        "runtime_module": "cst_runtime.session_manager",
+        "runtime_module": "cst_runtime.core.session",
     }
     if status == "error":
         payload["error_type"] = "session_close_failed"
@@ -189,7 +208,7 @@ def quit_cst(
         "pre_inspect": before,
         "cleanup_result": cleanup,
         "post_inspect": after,
-        "runtime_module": "cst_runtime.session_manager",
+        "runtime_module": "cst_runtime.core.session",
     }
     if status == "error":
         payload["error_type"] = "session_quit_failed"
