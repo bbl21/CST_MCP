@@ -62,6 +62,7 @@ def _max_exported_run_id(project_path: str) -> int:
 def pipeline_inspect_project(project_path: str) -> dict[str, Any]:
     from ...core.session import open_project as sm_open, close_project as sm_close
     from ...core.project import list_parameters, list_entities
+    from ...core.farfield import discover_farfield_monitors
 
     open_result = sm_open(project_path)
     if open_result.get("status") != "success":
@@ -90,7 +91,11 @@ def pipeline_inspect_project(project_path: str) -> dict[str, Any]:
             step="inspect-project:list-entities",
         )
 
+    farfield_info = discover_farfield_monitors(project_path)
+
     close_result = sm_close(project_path, save=False)
+    ff_count = farfield_info.get("count", 0) if farfield_info.get("status") == "success" else 0
+    ff_names = farfield_info.get("farfield_names", []) if ff_count > 0 else []
     return {
         "status": "success",
         "pipeline": "inspect-project",
@@ -99,6 +104,8 @@ def pipeline_inspect_project(project_path: str) -> dict[str, Any]:
         "parameters_count": params.get("count", 0),
         "entities": entities.get("entities", []),
         "entities_count": entities.get("count", 0),
+        "farfield_monitors": ff_names,
+        "farfield_monitors_count": ff_count,
         "close_status": close_result.get("status", "unknown"),
     }
 

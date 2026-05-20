@@ -156,8 +156,8 @@ PIPELINES: dict[str, dict[str, Any]] = {
     "inspect-project": {
         "category": "project-ops",
         "risk": "read",
-        "description": "Open a CST project, list all parameters and entities, then close.",
-        "when_to_use": "First exploration of an unknown project to understand available tuning knobs.",
+        "description": "Open a CST project, list all parameters, entities, and farfield monitors, then close.",
+        "when_to_use": "First exploration of an unknown project to understand all available tuning knobs and farfield monitors.",
         "required_context": ["working_project"],
         "commands": [
             "uv run python -m cst_runtime inspect-project --project-path <run>\\projects\\working.cst",
@@ -166,6 +166,7 @@ PIPELINES: dict[str, dict[str, Any]] = {
             {"tool": "cst-session-open", "purpose": "Open the CST project."},
             {"tool": "list-parameters", "purpose": "Discover all tunable parameters with current values."},
             {"tool": "list-entities", "purpose": "Discover all geometric entities."},
+            {"tool": "inspect-farfield-monitors", "purpose": "Find all farfield monitors for later export."},
             {"tool": "cst-session-close", "purpose": "Close with save=false (no changes were made)."},
         ],
         "stop_rules": [
